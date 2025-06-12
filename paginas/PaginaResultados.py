@@ -113,7 +113,7 @@ class PaginaResultados(PaginaBase):
                     "L C Tiempo", "L C Prox Ev", "RND M", "Masajista Asig", "F J Tiempo",
                     "F J Prox Ev", "F S M A RND", "F S M A Tension", "F S M A Tiempo",
                     "F S M A Prox Ev", "F S M B RND", "F S M B Tiempo", "F S M B Prox Ev", "F S M Ap RND", "F S M Ap Tiempo", "F S M Ap Prox Ev", "M A Estado",
-                    "M B Estado", "M Ap Estado", "Cola Max", "Acc Recaudacion"]
+                    "M B Estado", "M Ap Estado", "Cola Max", "Acc Recaudacion Daria", "Acc Recaudacion Total", "Cant Dias Simulados"]
 
         for i in range(self.max_cant_clientes):
             cabecera.extend(["ID", "Estado", "Hora Llegada", "Tiempo Espera"])

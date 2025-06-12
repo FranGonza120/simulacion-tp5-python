@@ -31,7 +31,8 @@ class VectorEstado():
         self._dias_a_simular = dias
         self._cant_dias_simulados = 0
         self._evento_actual = ""
-        self._acc_recaudacion = 0
+        self._acc_recaudacion_diaria = 0
+        self._acc_recaudacion_total = 0
         self._cant_max_cola = 0
 
     def simular(self):
@@ -50,8 +51,13 @@ class VectorEstado():
         if self._evento_actual == "Comienzo Jornada Laboral":
             llegada = self._eventos["L C"]
             llegada.calcular_prox_ev(self._reloj)
-            fin_jornada = self._eventos["F J"]
-            fin_jornada.calcular_prox_ev(self._reloj)
+            if self._reloj != 0:
+                self._cant_dias_simulados += 1
+                self._acc_recaudacion_total += self._acc_recaudacion_diaria
+                self._acc_recaudacion_diaria = 0
+            else:
+                fin_jornada = self._eventos["F J"]
+                fin_jornada.calcular_prox_ev(self._reloj)
 
         elif self._evento_actual == "Fin Jornada Laboral":
             llegada = self._eventos["L C"]
@@ -82,8 +88,6 @@ class VectorEstado():
                 self._masajistas[cod].set_estado(
                     self._estados_masajistas["L"])
                 evento.set_prox_ev_none()
-                if self.todos_masajistas_desocupados() and self.colas_vacias() and self.es_prox_ev_none("Llegada Cliente"):
-                    self._cant_dias_simulados += 1
             else:
                 evento.calcular_prox_ev(self._reloj)
 
@@ -166,7 +170,7 @@ class VectorEstado():
                     acc_gasto += 1500
 
                 acc_gasto += self._precio_masajistas[codigo_masajista]
-                self._acc_recaudacion += acc_gasto
+                self._acc_recaudacion_diaria += acc_gasto
                 c.blanquear()
                 break
 
@@ -182,12 +186,6 @@ class VectorEstado():
         for clave in self._eventos:
             if self._eventos[clave].es_tu_nombre(nombre_ev):
                 return self._eventos[clave].es_prox_ev_none()
-
-    def todos_masajistas_desocupados(self):
-        for codigo in ["M A", "M B", "M Ap"]:
-            if self._masajistas[codigo].estas(self._estados_masajistas["O"]):
-                return False
-        return True
 
     def guardar(self, j):
         if self._reloj >= j:
@@ -208,13 +206,6 @@ class VectorEstado():
                 c_e = clave
         return self._eventos[c_e]
 
-    def colas_vacias(self):
-        for clave in self._clientes:
-            for c in self._clientes[clave]:
-                if (not c.esta_blanqueado) and c.haciendo_cola():
-                    return False
-        return True
-
     def determinar_cant_cola(self):
         cant_cola = 0
         for clave in self._clientes:
@@ -231,7 +222,8 @@ class VectorEstado():
         for clave in self._masajistas:
             vec.append(self._masajistas[clave].get_nombre_estado())
 
-        vec.extend([str(self._cant_max_cola), str(self._acc_recaudacion)])
+        vec.extend([str(self._cant_max_cola), str(self._acc_recaudacion_diaria), str(
+            self._acc_recaudacion_total), str(self._cant_dias_simulados)])
 
         for clave in self._clientes:
             for c in self._clientes[clave]:
@@ -245,13 +237,17 @@ class VectorEstado():
 
     def crear_reporte(self):
         if self._cant_dias_simulados > 0:
-            recaudacion_promedio = self._acc_recaudacion / self._cant_dias_simulados
+            recaudacion_promedio = self._acc_recaudacion_total / self._cant_dias_simulados
+            reporte_recaudacion = f"La recaudación promedio daria del centro es de ${
+                recaudacion_promedio} en {self._cant_dias_simulados} días simulados."
         else:
-            recaudacion_promedio = self._acc_recaudacion
+            recaudacion_promedio = self._acc_recaudacion_diaria
+            reporte_recaudacion = f"La recaudación producida en menos de un dia es de ${
+                recaudacion_promedio}."
 
         reporte = f"""
             <h3>Reporte</h3>
             <p>La cantidad mínima de sillas que debe haber para que ningún cliente esté de pie es de {self._cant_max_cola}.</p>
-            <p>La recaudación promedio diaria del centro es de ${recaudacion_promedio}.</p>
+            <p>{reporte_recaudacion}</p>
             """
         return reporte
