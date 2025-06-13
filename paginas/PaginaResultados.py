@@ -179,6 +179,7 @@ class PaginaResultados(PaginaBase):
                 tabla.setItem(i + 2, j, item)
 
         # Configuraciones adicionales a la tabla
+        tabla.setMinimumHeight(500)
         tabla.resizeColumnsToContents()
         tabla.resizeRowsToContents()
         tabla.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
