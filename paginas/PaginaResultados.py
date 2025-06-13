@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QStackedWidget,
     QTableWidget, QTableWidgetItem, QWidget, QHeaderView,
-    QAbstractScrollArea
+    QAbstractScrollArea,
+    QSizePolicy
 )
 
 from PyQt5.QtGui import QFont
@@ -58,6 +59,7 @@ class PaginaResultados(PaginaBase):
         self.agregar_widget(
             QLabel(f"<h2>Simulación de Centro de Masajes Urbanos</h2>"))
         self.stack = QStackedWidget()
+        self.stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.stack.addWidget(self._widget_vectores())
         self.stack.addWidget(self._widget_runge_kutta())
 
@@ -116,6 +118,7 @@ class PaginaResultados(PaginaBase):
 
         tabla = QTableWidget(len(self.iteraciones) + 2, 28 +
                              self.max_cant_clientes * 4)
+        tabla.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # Cabecera 1
 
