@@ -24,7 +24,8 @@ class Simulador():
                 vectores_guardados.append(self._vector_estado.crear_vector())
 
         max_cola_clientes = self._vector_estado.determinar_cant_clientes_vecs()
-
+        vectores_guardados.append(self._vector_estado.crear_vector())
+        
         return vectores_guardados, max_cola_clientes
 
     def crear_salidas(self):
@@ -49,18 +50,18 @@ class Simulador():
         lim = b_c
 
         while y1 <= lim:
-            k1 = h * (a*((y1 + b)**2) + c)
+            k1 = (a*((y1 + b)**2) + c)
 
-            y2 = y1 + k1/2
-            k2 = h * (a*((y2 + b)**2) + c)
+            y2 = y1 + k1 * h/2
+            k2 = (a*((y2 + b)**2) + c)
 
-            y3 = y1 + k2/2
-            k3 = h * (a*((y3 + b)**2) + c)
+            y3 = y1 + k2 * h/2
+            k3 = (a*((y3 + b)**2) + c)
 
-            y4 = y1 + k3
-            k4 = h * (a*((y4 + b)**2) + c)
+            y4 = y1 + k3 * h
+            k4 = (a*((y4 + b)**2) + c)
 
-            yn1 = y1 + (1/6)*(k1 + 2*k2 + 2*k3 + k4)
+            yn1 = y1 + (h/6)*(k1 + 2*k2 + 2*k3 + k4)
             xn1 = x1 + h
             func_tension[yn1] = xn1 / x
             vec_iteraciones.append(
