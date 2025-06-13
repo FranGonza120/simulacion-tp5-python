@@ -19,5 +19,3 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-# Para el profesor
-En caso de que desee ejecutar el codigo sin instalar python, vaya a la viñeta que dice Ejecutables a la derecha y descargue el correspondiente para su Sistema Operativo
