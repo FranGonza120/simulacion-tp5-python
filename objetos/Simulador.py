@@ -14,6 +14,7 @@ class Simulador():
 
         self._cant_dias_a_simular = dias
 
+        ult_guardado = False
         vectores_guardados = []
 
         while not self._vector_estado.finalizo() and self._cant_iteraciones < 100000:
@@ -21,9 +22,13 @@ class Simulador():
             self._cant_iteraciones += 1
 
             if self._vector_estado.guardar(j) and len(vectores_guardados) < i:
+                if self._cant_iteraciones == 100000:
+                    ult_guardado = True
                 vectores_guardados.append(self._vector_estado.crear_vector())
 
         max_cola_clientes = self._vector_estado.determinar_cant_clientes_vecs()
+        if not ult_guardado:
+            vectores_guardados.append(self._vector_estado.crear_vector())
 
         return vectores_guardados, max_cola_clientes
 
