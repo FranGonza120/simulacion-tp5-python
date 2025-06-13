@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QStackedWidget
 
 from core.utilidades import aplicar_estilo
 
+from objetos.Id import Id
+
 from paginas.PaginaInicio import PaginaInicio
 from paginas.PaginaElegirVals import PaginaElegirVals
 from paginas.PaginaResultados import PaginaResultados
@@ -56,6 +58,8 @@ class MainWindow(QWidget):
         self.stack.setCurrentWidget(resultados)
 
     def volver(self, pagina_actual):
+        if isinstance(pagina_actual, PaginaResultados):
+            Id().reset()
         self.stack.removeWidget(pagina_actual)
         self.stack.setCurrentIndex(self.stack.count() - 1)
 

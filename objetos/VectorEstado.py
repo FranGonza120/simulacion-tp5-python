@@ -235,19 +235,36 @@ class VectorEstado():
             return True
         return False
 
-    def crear_reporte(self):
+    def crear_salida_info_simulacion(self, iteraciones):
+        if self._cant_dias_simulados == 0:
+            return "Todavia no se ha simulado"
+
+        if self._cant_dias_simulados == self._dias_a_simular:
+            return f"✅ Se simuló exitosamente los {self._dias_a_simular} días en {iteraciones} iteraciones."
+        else:
+            minutos_simulados = self._reloj
+            minutos_objetivo = self._dias_a_simular * 24 * 60
+
+            porcentaje = (minutos_simulados / minutos_objetivo) * 100
+
+            return f"""⚠️ Se simuló hasta el minuto {minutos_simulados} ({porcentaje:.2f}%). No se completaron los {self._dias_a_simular} días por alcanzar el límite de 100.000 iteraciones."""
+
+    def crear_reporte_simulacion(self):
         if self._cant_dias_simulados > 0:
-            recaudacion_promedio = self._acc_recaudacion_total / self._cant_dias_simulados
-            reporte_recaudacion = f"La recaudación promedio daria del centro es de ${
-                recaudacion_promedio} en {self._cant_dias_simulados} días simulados."
+            calculo_recaudacion = round(
+                self._acc_recaudacion_total / self._cant_dias_simulados, 2)
+            reporte_recaudacion = f"<strong>Recaudacion promedio diaria en {
+                self._cant_dias_simulados} días:</strong> ${calculo_recaudacion}"
         else:
             recaudacion_promedio = self._acc_recaudacion_diaria
-            reporte_recaudacion = f"La recaudación producida en menos de un dia es de ${
-                recaudacion_promedio}."
+            reporte_recaudacion = f"<strong>Recaudación en menos de un día:</strong> ${
+                calculo_recaudacion}"
 
         reporte = f"""
-            <h3>Reporte</h3>
-            <p>La cantidad mínima de sillas que debe haber para que ningún cliente esté de pie es de {self._cant_max_cola}.</p>
-            <p>{reporte_recaudacion}</p>
-            """
+                    <div style="padding:12px; border-radius:8px; font-family:'Segoe UI'; font-size:10pt;">
+                    <h3 style="color:#2E86C1; margin-top:0;">📄 Reporte Final</h3>
+                    <p>🪑 <strong>Cantidad mínima de sillas:</strong> {self._cant_max_cola}</p>
+                    <p>💰  {reporte_recaudacion}</p>
+                    </div>
+                """
         return reporte

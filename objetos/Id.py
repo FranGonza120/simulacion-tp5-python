@@ -12,3 +12,6 @@ class Id():
         nro = self.__class__._nro
         self.__class__._nro += 1
         return nro
+
+    def reset(self):
+        self.__class__._nro = 1

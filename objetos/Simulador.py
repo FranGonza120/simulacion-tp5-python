@@ -2,9 +2,9 @@ from objetos.VectorEstado import VectorEstado
 
 
 class Simulador():
-    def __init__(self, x, a_dc, b_dc, c_dc):
+    def __init__(self, x, a_dc, b_dc, c_dc, b_c):
         self._func_tension, self._iteraciones_runge_kutta = self.obtener_func_tension(
-            x, a_dc, b_dc, c_dc)
+            x, a_dc, b_dc, c_dc, b_c)
         self._cant_iteraciones = 0
         self._cant_dias_a_simular = None
 
@@ -24,23 +24,29 @@ class Simulador():
                 vectores_guardados.append(self._vector_estado.crear_vector())
 
         max_cola_clientes = self._vector_estado.determinar_cant_clientes_vecs()
-        reporte = self._vector_estado.crear_reporte()
 
-        return vectores_guardados, max_cola_clientes, reporte
+        return vectores_guardados, max_cola_clientes
+
+    def crear_salidas(self):
+        info_simulacion = self._vector_estado.crear_salida_info_simulacion(
+            self._cant_iteraciones)
+        reporte_simulacion = self._vector_estado.crear_reporte_simulacion()
+
+        return info_simulacion, reporte_simulacion
 
     @staticmethod
-    def obtener_func_tension(x, a, b, c):
+    def obtener_func_tension(x, a, b, c, b_c):
         # x creo que es la equivalencia en minutos para cada uno de los valores
         # La func_tension es nivel de tension y da la cantidad de minutos
         x1 = 0
         y1 = 0
         h = 0.01
         k1 = k2 = k3 = k4 = None
-        xn1 = yn = yn1 = None
+        xn1 = yn1 = None
         func_tension = {}
         vec_iteraciones = []
         func_tension[y1] = x1
-        lim = 10
+        lim = b_c
 
         while y1 <= lim:
             k1 = h * (a*((y1 + b)**2) + c)
@@ -67,16 +73,3 @@ class Simulador():
 
     def get_iteraciones_runge_kutta(self):
         return self._iteraciones_runge_kutta
-
-    def cuanto_se_simulo(self):
-        texto = ""
-        if self._cant_dias_a_simular is None:
-            texto = "Todavía no se ha simulado."
-        elif self._cant_iteraciones < 100000:
-            texto = f"Se simuló exitosamente los {
-                self._cant_dias_a_simular} dias."
-        else:
-            texto = f"Se intentó simular {
-                self._cant_dias_a_simular} días pero se llegó al tope de 100000 iteraciones."
-
-        return texto

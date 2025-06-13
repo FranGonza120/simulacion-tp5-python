@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import (
     QTableWidget, QTableWidgetItem, QWidget, QHeaderView,
     QAbstractScrollArea
 )
+
+from PyQt5.QtGui import QFont
+
 from PyQt5.QtCore import Qt
 
 from objetos.Simulador import Simulador
@@ -41,14 +44,15 @@ class PaginaResultados(PaginaBase):
         self.b_dc = b_dc
         self.c_dc = c_dc
 
-        simulador = Simulador(self.x, self.a_dc, self.b_dc, self.c_dc)
+        simulador = Simulador(
+            self.x, self.a_dc, self.b_dc, self.c_dc, self.b_c)
         # Aca vamos a tener que sacar los datos para hacer los reportes sobre las consginas pedidas
         # Faltan hacer la generacion de las tablas
         # Faltan mostrar lo reportes
         # Falta poder sacar los reportes de la Simulacion
-        self.iteraciones, self.max_cant_clientes, self.reporte = simulador.simular(
+        self.iteraciones, self.max_cant_clientes = simulador.simular(
             self.dias, self.j, self.i, self.a_c, self.b_c, self.a_lc, self.b_lc)
-        self.info_simulacion = simulador.cuanto_se_simulo()
+        self.info_simulacion, self.reporte = simulador.crear_salidas()
         self.runge_kutta = simulador.get_iteraciones_runge_kutta()
 
         self.agregar_widget(
@@ -98,40 +102,86 @@ class PaginaResultados(PaginaBase):
         contenedor = QWidget()
         layout = QVBoxLayout(contenedor)
 
+        font = QFont()
+        font.setBold(True)
+
         layout.addWidget(QLabel(self.info_simulacion))
         layout.addWidget(QLabel(f"""
-            <h3>Parametros Seleccionados</h3>
-            <p>La distribucion de tension muscular es U({self.a_c}, {self.b_c}).</p>
-            <p>La distribucion de llegada de los clientes es U({self.a_lc}, {self.b_lc}).</p>
-            <p>Fueron recolectados {self.i} vectores a partir del minuto {self.j}.</p>
-            """))
+                    <h3 style="color:#2E86C1;">📊 Parámetros Seleccionados</h3>
+                    <p><strong>Distribución de tensión muscular:</strong> U({self.a_c}, {self.b_c})</p>
+                    <p><strong>Distribución de llegada de clientes:</strong> U({self.a_lc}, {self.b_lc})</p>
+                    <p><strong>Vectores recolectados:</strong> {self.i} a partir del minuto {self.j}</p>
+                    """))
         layout.addWidget(QLabel(self.reporte))
 
-        tabla = QTableWidget(len(self.iteraciones), 26 +
+        tabla = QTableWidget(len(self.iteraciones) + 2, 28 +
                              self.max_cant_clientes * 4)
-        cabecera = ["Reloj", "Estado Actual", "C J Tiempo", "C J Prox Ev", "L C RND",
-                    "L C Tiempo", "L C Prox Ev", "RND M", "Masajista Asig", "F J Tiempo",
-                    "F J Prox Ev", "F S M A RND", "F S M A Tension", "F S M A Tiempo",
-                    "F S M A Prox Ev", "F S M B RND", "F S M B Tiempo", "F S M B Prox Ev", "F S M Ap RND", "F S M Ap Tiempo", "F S M Ap Prox Ev", "M A Estado",
-                    "M B Estado", "M Ap Estado", "Cola Max", "Acc Recaudacion Daria", "Acc Recaudacion Total", "Cant Dias Simulados"]
+
+        # Cabecera 1
+
+        cabecera1 = [("", 0, 2),
+                     ("Comienzo Jornada Laboral", 2, 2),
+                     ("Llegada Cliente", 4, 5),
+                     ("Fin Jornada Laboral", 9, 2),
+                     ("Fin Servicio Masajista A", 11, 4),
+                     ("Fin Servicio Masajista B", 15, 3),
+                     ("Fin Servicio Masajista Ap", 18, 3),
+                     ("Masajistas", 21, 3),
+                     ("Indicadores de Simulacion", 24, 4)
+                     ]
+        for i in range(self.max_cant_clientes):
+            cabecera1.append((f"Cliente {i + 1}", 28 + i*4, 4))
+
+        for texto, inicio, ancho in cabecera1:
+            tabla.setSpan(0, inicio, 1, ancho)
+            item = QTableWidgetItem(texto)
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            item.setToolTip(item.text())
+            item.setTextAlignment(Qt.AlignCenter)
+            item.setFont(font)
+            item.setBackground(Qt.gray)
+            tabla.setItem(0, inicio, item)
+
+        # Cabecera 2
+
+        cabecera2 = ["Reloj", "Estado Actual", "Tiempo", "Prox Ev", "RND",
+                     "Tiempo", "Prox Ev", "RND", "Masajista Asig", "Tiempo",
+                     "Prox Ev", "RND", "Tension", "Tiempo",
+                     "Prox Ev", "RND", "Tiempo", "Prox Ev", "RND", "Tiempo", "Prox Ev", "M A Estado",
+                     "M B Estado", "M Ap Estado", "Cola Max", "Acc Recaudacion Daria", "Acc Recaudacion Total", "Cant Dias Simulados"]
 
         for i in range(self.max_cant_clientes):
-            cabecera.extend(["ID", "Estado", "Hora Llegada", "Tiempo Espera"])
+            cabecera2.extend(["ID", "Estado", "Hora Llegada", "Tiempo Espera"])
 
-        tabla.setHorizontalHeaderLabels(cabecera)
+        for i, titulo in enumerate(cabecera2):
+            item = QTableWidgetItem(titulo)
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            item.setToolTip(item.text())
+            item.setTextAlignment(Qt.AlignCenter)
+            item.setFont(font)
+            item.setBackground(Qt.gray)
+            tabla.setItem(1, i, item)
 
+        # Cabecera Vertical
+        cabecera_vertical = ["", ""] + \
+            [str(i + 1) for i in range(len(self.iteraciones))]
+        tabla.setVerticalHeaderLabels(cabecera_vertical)
+
+        # Datos de Iteraciones
         for i, valores in enumerate(self.iteraciones):
             for j, v in enumerate(valores):
                 item = QTableWidgetItem(v)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 item.setToolTip(item.text())
-                tabla.setItem(i, j, item)
+                tabla.setItem(i + 2, j, item)
 
+        # Configuraciones adicionales a la tabla
         tabla.resizeColumnsToContents()
         tabla.resizeRowsToContents()
         tabla.setSizeAdjustPolicy(QAbstractScrollArea.AdjustIgnored)
         tabla.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         tabla.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        tabla.horizontalHeader().setVisible(False)
 
         layout.addWidget(tabla)
 

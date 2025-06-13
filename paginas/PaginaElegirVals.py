@@ -11,9 +11,7 @@ class PaginaElegirVals(PaginaBase):
         self.MIN_LIM = -1000000
 
         # Falta verificar los rangos de estas variables
-        self.entrada_tiempo_sim = QDoubleSpinBox()
-        self.entrada_tiempo_sim.setDecimals(1)
-        self.entrada_tiempo_sim.setSingleStep(0.01)
+        self.entrada_tiempo_sim = QSpinBox()
         self.entrada_tiempo_sim.setValue(2)
         self.entrada_tiempo_sim.setRange(0, self.MAX_LIM)
 
