@@ -175,12 +175,23 @@ class VectorEstado():
                 break
 
     def llamar_sig_cliente(self, codigo_masajista):
+        hora_llegada = None
+        cliente = None
         for c in self._clientes[codigo_masajista]:
             if (not c.esta_blanqueado()) and c.estas(self._estados_cliente[f"E {codigo_masajista}"]):
-                c.setEstado(
+                if hora_llegada is None:
+                    hora_llegada = c.get_hora_llegada()
+                    cliente = c
+                if hora_llegada > c.get_hora_llegada():
+                    hora_llegada = c.get_hora_llegada()
+                    cliente = c
+        
+        if hora_llegada is None:
+            return False
+        else:    
+            cliente.setEstado(
                     self._estados_cliente[f"A {codigo_masajista}"], self._reloj)
-                return True
-        return False
+            return True
 
     def es_prox_ev_none(self, nombre_ev):
         for clave in self._eventos:

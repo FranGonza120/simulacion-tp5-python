@@ -58,3 +58,6 @@ class Cliente():
         if self._id is None:
             return True
         return False
+
+    def get_hora_llegada(self):
+        return self._hora_llegada
