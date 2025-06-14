@@ -168,7 +168,7 @@ class PaginaResultados(PaginaBase):
         # Cabecera Vertical
         cabecera_vertical = ["", ""] + \
             [str(i + 1) for i in range(len(self.iteraciones) - 1)]
-        cabecera_vertical.append("U.Vec")
+        cabecera_vertical.append("Ult Vec")
         tabla.setVerticalHeaderLabels(cabecera_vertical)
 
         # Datos de Iteraciones
